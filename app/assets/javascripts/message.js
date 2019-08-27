@@ -23,28 +23,21 @@ $(document).on('turbolinks:load', function(){
   }
   $('#new_message').on('submit', function(e){
     e.preventDefault();
-    var message = new FormData(this);
+    var formData = new FormData(this);
     var url = (window.location.href);
     $.ajax({
       url: url,
       type: 'POST',
-      data: message,
+      data: formData,
       dataType: 'json',
       processData: false,
       contentType: false
     })
     .done(function(data){
-      function scrollBottom(){
-        var target = $('.message').last();
-        var position = target.offset().top + $('.messages').scrollTop();
-        $('.messages').animate({
-          scrollTop: position
-        }, 300, 'swing');
-      }
       var html = buildHTML(data);
       $('.messages').append(html);
-      $('#message_content').val('');
-      scrollBottom();
+      $('.messages').delay(100).animate({scrollTop: $('.messages')[0].scrollHeight}, 'swing');
+      $('form')[0].reset()
     })
     .fail(function(data){
       alert('エラーが発生したためメッセージは送信できませんでした。');
