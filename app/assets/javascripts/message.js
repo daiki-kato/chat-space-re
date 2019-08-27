@@ -1,24 +1,23 @@
 $(document).on('turbolinks:load', function(){
   function buildHTML(message) {
-    var content = message.content ? `${ message.content }` : "";
-    var img = message.image ? `<img src= ${ message.image }>` : "";
+    var img = message.image.url ? message.image.url : '' ;
     var html = `<div class="message" data-id="${message.id}">
                   <div class="upper-message">
                     <p class="upper-message__user-name">
                       ${message.user_name}
                     </p>
                     <p class="upper-message__date">
-                      ${message.date}
+                      ${message.created_at}
                     </p>
                   </div>
                   <div class="lower-message">
                     <p class="lower-message__content">
-                      ${content}
+                      ${message.content}
                     </p>
-                    <p class="lower-message__image">
-                      ${img}
-                    </p>
-                </div>`
+                    <img src="${img}">
+                  </div>
+                </div>
+                `;
   return html;
   }
   $('#new_message').on('submit', function(e){
@@ -46,4 +45,27 @@ $(document).on('turbolinks:load', function(){
       $('.form__submit').prop('disabled', false);
     })
   })
+  var reloadMessages = function(){
+    var last_message_id = $('.message:last').data("id");
+    $.ajax({
+      url: 'api/messages',
+      type: "GET",
+      dataType: 'json',
+      data: {id: last_message_id }
+    })
+    .done(function(messages) {
+      var insertHTML = '';
+      messages.forEach(function(message) {
+        insertHTML += buildHTML(message)
+        $('.messages').append(insertHTML);
+      });
+      $('.messages').delay(100).animate({scrollTop: $('.messages')[0].scrollHeight}, 'swing');
+    })
+    .fail(function() {
+      alert('自動更新エラー')
+    })
+  };
+  if (window.location.href.match(/\/groups\/\d+\/messages/)){
+    setInterval(reloadMessages, 5000);
+  };
 });
