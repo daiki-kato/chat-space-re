@@ -46,6 +46,8 @@ $(document).on('turbolinks:load', function(){
     })
   })
   var reloadMessages = function(){
+    if (window.location.href.match(/\/groups\/\d+\/messages/)){
+      setInterval(reloadMessages, 5000);
     var last_message_id = $('.message:last').data("id");
     $.ajax({
       url: 'api/messages',
@@ -56,7 +58,7 @@ $(document).on('turbolinks:load', function(){
     .done(function(messages) {
       var insertHTML = '';
       messages.forEach(function(message) {
-        insertHTML += buildHTML(message)
+        insertHTML = buildHTML(message)
         $('.messages').append(insertHTML);
       });
       $('.messages').delay(100).animate({scrollTop: $('.messages')[0].scrollHeight}, 'swing');
@@ -64,8 +66,6 @@ $(document).on('turbolinks:load', function(){
     .fail(function() {
       alert('自動更新エラー')
     })
-  };
-  if (window.location.href.match(/\/groups\/\d+\/messages/)){
-    setInterval(reloadMessages, 5000);
+    };
   };
 });
